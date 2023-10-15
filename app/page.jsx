@@ -1,5 +1,6 @@
 "use client";
 
+import Pagination from "@/components/Pagination";
 import axios from "axios";
 import { useState, useEffect } from "react";
 
@@ -88,40 +89,13 @@ const Home = () => {
           </div>
         ))}
       </div>
-      <div className="mt-4">
-        <ul className="flex justify-center items-center">
-          <li>
-            <button
-              onClick={prevPage}
-              className="bg-slate-800 text-slate-300 hover:bg-slate-300 hover:text-slate-950 font-semibold px-4 py-2 m-1 rounded-full"
-            >
-              Prev
-            </button>
-          </li>
-          {Array.from({ length: totalPages }).map((_, index) => (
-            <li key={index}>
-              <button
-                onClick={() => paginate(index + 1)}
-                className={`${
-                  currentPage === index + 1
-                    ? "bg-slate-300 text-slate-950"
-                    : "bg-slate-800 text-slate-300"
-                } hover:bg-slate-300 hover:text-slate-950 font-semibold px-4 py-2 m-1 rounded-full`}
-              >
-                {index + 1}
-              </button>
-            </li>
-          ))}
-          <li>
-            <button
-              onClick={nextPage}
-              className="bg-slate-800 text-slate-300 hover:bg-slate-300 hover:text-slate-950 font-semibold px-4 py-2 m-1 rounded-full"
-            >
-              Next
-            </button>
-          </li>
-        </ul>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        paginate={paginate}
+        nextPage={nextPage}
+        prevPage={prevPage}
+      />
       {showModal && selectedPost && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div
