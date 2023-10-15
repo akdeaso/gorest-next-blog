@@ -125,10 +125,10 @@ const Home = () => {
       {showModal && selectedPost && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div
-            className="absolute inset-0 bg-slate-900 opacity-75"
+            className="absolute inset-0 bg-slate-900 opacity-80"
             onClick={closeModal}
           ></div>
-          <div className="bg-slate-800 rounded-lg p-4 shadow-lg w-full max-w-2xl overflow-y-auto z-10">
+          <div className="bg-slate-800 rounded-lg p-4 shadow-lg w-full max-w-2xl overflow-y-auto z-10 mx-5">
             <h2 className="text-xl font-semibold mb-2 text-slate-300">
               {selectedPost.title}
             </h2>
