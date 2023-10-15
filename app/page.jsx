@@ -17,7 +17,7 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://gorest.co.in/public/v2/posts"
+          `https://gorest.co.in/public/v2/posts?page=${currentPage}&per_page=20`
         );
         setPosts(response.data);
         setTotalPages(Math.ceil(response.data.length / postsPerPage));
@@ -73,7 +73,7 @@ const Home = () => {
   };
 
   return (
-    <div className="p-4 bg-slate-900 text-slate-300 min-h-screen">
+    <div className="p-4 xl:px-32 bg-slate-900 text-slate-300 min-h-screen">
       <h1 className="text-3xl font-bold mb-4">Posts</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {currentPosts.map((post) => (
