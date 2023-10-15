@@ -7,8 +7,6 @@ import Pagination from "@/components/Pagination";
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [usersPerPage] = useState(6);
-  const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [name, setName] = useState("");
@@ -17,20 +15,21 @@ const UsersPage = () => {
   const [status, setStatus] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const totalPages = 6;
   const token =
     "13d087c6b0be88324d1114db36e6d95ea5bdf4acd55e3c133a6f14044526d369";
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [currentPage]);
 
   const fetchUsers = async () => {
     try {
       const response = await axios.get(
-        `https://gorest.co.in/public/v2/users?page=${currentPage}&per_page=20`
+        `https://gorest.co.in/public/v2/users?page=${currentPage}&per_page=9`
       );
       setUsers(response.data);
-      setTotalPages(Math.ceil(response.data.length / usersPerPage));
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -116,10 +115,6 @@ const UsersPage = () => {
     setShowModal(false);
   };
 
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
-
   const paginate = (pageNumber) => {
     if (pageNumber > 0 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
@@ -138,42 +133,60 @@ const UsersPage = () => {
     }
   };
 
+  const filteredUsers = users.filter((user) => {
+    return (
+      user.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchText.toLowerCase())
+    );
+  });
+
   return (
     <div className="p-4 xl:px-32 bg-slate-900 text-slate-300 min-h-screen">
       <h1 className="text-3xl font-bold mb-4">Users</h1>
       <div className="flex justify-end mb-4">
         <button
           onClick={() => openModal(null)}
-          className="bg-slate-700 text-slate-300 hover:bg-slate-300 hover:text-slate-950 font-semibold px-4 py-2 mt-4 rounded-full"
+          className="bg-slate-700 text-slate-300 hover:bg-slate-300 hover:text-slate-950 font-semibold px-4 py-2 rounded-full"
         >
           Create User
         </button>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-3 gap-4">
-        {currentUsers.map((user) => (
-          <div key={user.id} className="bg-slate-800 rounded-lg p-4 shadow">
-            <h2 className="text-xl font-semibold mb-2 text-slate-300">
-              {user.name}
-            </h2>
-            <p className="text-slate-400">{user.email}</p>
-            <p className="text-slate-400">Status: {user.status}</p>
-            <div className="flex justify-end mt-4 gap-2">
-              <button
-                onClick={() => openModal(user)}
-                className="bg-slate-700 text-slate-300 hover:bg-slate-300 hover:text-slate-950 font-semibold px-4 py-2 mt-4 rounded-full"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => deleteUser(user.id)}
-                className="bg-red-500 hover:bg-red-600 text-slate-300 font-semibold px-4 py-2 mt-4 rounded-full"
-              >
-                Delete
-              </button>
+      <input
+        type="text"
+        placeholder="Search Users"
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        className="bg-slate-700 text-slate-300 mb-4 px-4 py-2 rounded-full w-full"
+      />
+      {filteredUsers.length === 0 ? (
+        <p className="text-slate-400 mb-4">User not found.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-3 gap-4">
+          {filteredUsers.map((user) => (
+            <div key={user.id} className="bg-slate-800 rounded-lg p-4 shadow">
+              <h2 className="text-xl font-semibold mb-2 text-slate-300">
+                {user.name}
+              </h2>
+              <p className="text-slate-400">{user.email}</p>
+              <p className="text-slate-400">Status: {user.status}</p>
+              <div className="flex justify-end mt-4 gap-2">
+                <button
+                  onClick={() => openModal(user)}
+                  className="bg-slate-700 text-slate-300 hover-bg-slate-300 hover-text-slate-950 font-semibold px-4 py-2 mt-4 rounded-full"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => deleteUser(user.id)}
+                  className="bg-red-500 hover-bg-red-600 text-slate-300 font-semibold px-4 py-2 mt-4 rounded-full"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -250,13 +263,13 @@ const UsersPage = () => {
             <div className="flex justify-end gap-2">
               <button
                 onClick={createOrUpdateUser}
-                className="bg-slate-700 text-slate-300 hover:bg-slate-300 hover:text-slate-950 font-semibold px-4 py-2 mt-4 rounded-full"
+                className="bg-slate-700 text-slate-300 hover-bg-slate-300 hover-text-slate-950 font-semibold px-4 py-2 mt-4 rounded-full"
               >
                 {selectedUser ? "Update" : "Create"}
               </button>
               <button
                 onClick={closeModal}
-                className="bg-red-500 hover:bg-red-600 text-slate-300 font-semibold px-4 py-2 mt-4 rounded-full"
+                className="bg-red-500 hover-bg-red-600 text-slate-300 font-semibold px-4 py-2 mt-4 rounded-full"
               >
                 Cancel
               </button>
