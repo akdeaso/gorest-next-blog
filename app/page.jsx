@@ -10,16 +10,19 @@ const Home = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    axios
-      .get("https://gorest.co.in/public/v2/posts")
-      .then((response) => {
+    try {
+      const fetchData = async () => {
+        const response = await axios.get(
+          "https://gorest.co.in/public/v2/posts"
+        );
         setPosts(response.data);
         setTotalPages(Math.ceil(response.data.length / postsPerPage));
-        console.log(response.data.length, "tes ini");
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+      };
+
+      fetchData();
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   }, []);
 
   const indexOfLastPost = currentPage * postsPerPage;
