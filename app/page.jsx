@@ -1,32 +1,39 @@
 "use client";
 
 import Pagination from "@/components/Pagination";
-import axios from "axios";
 import { useState, useEffect } from "react";
+import { fetchPosts, fetchComments } from "@/utils/api";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(6);
-  const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [comments, setComments] = useState([]);
+  const totalPages = 6;
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `https://gorest.co.in/public/v2/posts?page=${currentPage}&per_page=20`
-        );
-        setPosts(response.data);
-        setTotalPages(Math.ceil(response.data.length / postsPerPage));
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, []);
+    getPostsData();
+  }, [currentPage]);
+
+  const getPostsData = async () => {
+    try {
+      const response = await fetchPosts(currentPage);
+      setPosts(response);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const getCommentsData = async (postId) => {
+    try {
+      const response = await fetchComments(postId);
+      setComments(response);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
+  };
 
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
@@ -53,23 +60,12 @@ const Home = () => {
   const openModal = (post) => {
     setSelectedPost(post);
     setShowModal(true);
-    fetchComments(post.id);
+    getCommentsData(post.id);
   };
 
   const closeModal = () => {
     setSelectedPost(null);
     setShowModal(false);
-  };
-
-  const fetchComments = async (postId) => {
-    try {
-      const response = await axios.get(
-        `https://gorest.co.in/public/v2/comments?post_id=${postId}`
-      );
-      setComments(response.data);
-    } catch (error) {
-      console.error("Error fetching comments:", error);
-    }
   };
 
   return (

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Pagination from "@/components/Pagination";
+import { createUser, deleteUser, fetchUsers, updateUser } from "@/utils/api";
 
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -17,19 +17,15 @@ const UsersPage = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [searchText, setSearchText] = useState("");
   const totalPages = 6;
-  const token =
-    "13d087c6b0be88324d1114db36e6d95ea5bdf4acd55e3c133a6f14044526d369";
 
   useEffect(() => {
-    fetchUsers();
+    getUsersData();
   }, [currentPage]);
 
-  const fetchUsers = async () => {
+  const getUsersData = async () => {
     try {
-      const response = await axios.get(
-        `https://gorest.co.in/public/v2/users?page=${currentPage}&per_page=9`
-      );
-      setUsers(response.data);
+      const response = await fetchUsers(currentPage);
+      setUsers(response);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -38,57 +34,35 @@ const UsersPage = () => {
   const createOrUpdateUser = async () => {
     try {
       if (selectedUser) {
-        // Update user
-        await axios.put(
-          `https://gorest.co.in/public/v2/users/${selectedUser.id}`,
-          {
-            name,
-            email,
-            gender,
-            status,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        await updateUser(selectedUser.id, {
+          name,
+          email,
+          gender,
+          status,
+        });
         setSuccessMessage("User updated successfully.");
       } else {
-        // Create user
-        await axios.post(
-          "https://gorest.co.in/public/v2/users",
-          {
-            name,
-            email,
-            gender,
-            status,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        await createUser({
+          name,
+          email,
+          gender,
+          status,
+        });
         setSuccessMessage("User created successfully.");
       }
       closeModal();
-      fetchUsers();
+      getUsersData();
     } catch (error) {
       console.error("Error creating/updating user:", error);
       setErrorMessage("Failed to create/update user.");
     }
   };
 
-  const deleteUser = async (userId) => {
+  const deleteUserData = async (userId) => {
     try {
-      await axios.delete(`https://gorest.co.in/public/v2/users/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await deleteUser(userId);
       setSuccessMessage("User deleted successfully.");
-      fetchUsers();
+      getUsersData();
     } catch (error) {
       console.error("Error deleting user:", error);
       setErrorMessage("Failed to delete user.");
@@ -177,7 +151,7 @@ const UsersPage = () => {
                   Edit
                 </button>
                 <button
-                  onClick={() => deleteUser(user.id)}
+                  onClick={() => deleteUserData(user.id)}
                   className="bg-red-500 hover-bg-red-600 text-slate-300 font-semibold px-4 py-2 mt-4 rounded-full"
                 >
                   Delete
